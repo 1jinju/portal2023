@@ -11,7 +11,9 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 
+
 @Configuration
+// DaoFactory = 스프링 컨테이너
 public class DaoFactory {
     @Value("${db.username}")
     private String username;
