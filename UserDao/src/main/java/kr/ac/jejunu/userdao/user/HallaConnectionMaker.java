@@ -1,7 +1,5 @@
 package kr.ac.jejunu.userdao.user;
 
-import kr.ac.jejunu.userdao.user.ConnectionMaker;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
