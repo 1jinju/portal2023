@@ -15,7 +15,7 @@ public class UserDao {
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
         Connection connection = null;
-        User user;
+        User user = null;
         try {
             connection = dataSource.getConnection();
             //쿼리 만들고
@@ -24,12 +24,14 @@ public class UserDao {
             preparedStatement.setLong(1, id);
             //쿼리 실행하고
             resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            //결과를 사용자 정보에 매핑하고
-            user = new User();
-            user.setId(resultSet.getLong("id"));
-            user.setName(resultSet.getString("name"));
-            user.setPassword(resultSet.getString("password"));
+            if (resultSet.next()) {
+                //결과를 사용자 정보에 매핑하고
+                user = new User();
+                user.setId(resultSet.getLong("id"));
+                user.setName(resultSet.getString("name"));
+                user.setPassword(resultSet.getString("password"));
+            }
+            
         } finally {
             try {
                 resultSet.close();
@@ -91,9 +93,66 @@ public class UserDao {
 
     // refactoring, 중복 코드 extract
     public Connection getConnection() throws ClassNotFoundException, SQLException {
-        //데이터 어딨어? mysql
-        //mysql 클래스 로딩
-        //connection 맺고
         return dataSource.getConnection();
+    }
+
+    public void update(User user) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = dataSource.getConnection();
+            //쿼리 만들고
+            preparedStatement = connection.prepareStatement
+                    ("update userinfo set name = ?, password = ? where id = ?"
+                            , Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, user.getName());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setLong(3, user.getId());
+
+            //쿼리 실행하고
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void delete(Long id){
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = dataSource.getConnection();
+            //쿼리 만들고
+            preparedStatement = connection.prepareStatement
+                    ("delete from userinfo where id = ?"
+                            , Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setLong(1, id);
+
+            //쿼리 실행하고
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
