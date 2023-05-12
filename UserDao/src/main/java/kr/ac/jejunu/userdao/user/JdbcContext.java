@@ -10,7 +10,7 @@ public class JdbcContext {
         this.dataSource = dataSource;
     }
 
-    User jdbcContextForFind(StatementStrategy statementStrategy) throws SQLException {
+    User jdbcContextForFind(StatementStrategy statementStrategy) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -25,6 +25,8 @@ public class JdbcContext {
                 user.setName(resultSet.getString("name"));
                 user.setPassword(resultSet.getString("password"));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         } finally {
             try {
                 resultSet.close();
@@ -119,7 +121,7 @@ public class JdbcContext {
         jdbcContextForInsert(user, statementStrategy);
     }
 
-    User find(String sql, Object[] params) throws SQLException {
+    User find(String sql, Object[] params){
         StatementStrategy statementStrategy = connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             for (int i = 0; i < params.length; i++) {
